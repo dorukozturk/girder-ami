@@ -1,0 +1,5 @@
+- git: https://github.com/girder/girder.git
+  version: ansible-role-girder3
+  files:
+    - src: devops/ansible-role-girder
+      dst: ../playbooks/roles/girder3

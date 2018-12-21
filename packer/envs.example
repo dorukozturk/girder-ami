@@ -1,5 +1,2 @@
-# Copy this file from secrets.example to secrets and fill in the
-# following variables.
-
 export aws_access_key="<AWS_ACCESS_KEY>"
 export aws_secret_key="<AWS_SECRET_ACCESS_KEY>"

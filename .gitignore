@@ -1,0 +1,4 @@
+playbooks/roles/*
+packer/.envs
+*.retry
+*~

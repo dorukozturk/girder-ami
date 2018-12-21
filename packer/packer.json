@@ -1,0 +1,60 @@
+{
+    "variables": {
+        "aws_access_key": "{{env `aws_access_key`}}",
+        "aws_secret_key": "{{env `aws_secret_key`}}"
+    },
+    "builders": [{
+        "type": "amazon-ebs",
+        "access_key": "{{user `aws_access_key`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "region": "us-east-1",
+        "source_ami_filter": {
+            "filters": {
+                "virtualization-type": "hvm",
+                "name": "*ubuntu-bionic-18.04-amd64-server-*",
+                "root-device-type": "ebs"
+            },
+            "owners": ["099720109477"],
+            "most_recent": true
+        },
+        "launch_block_device_mappings": [
+            {
+                "device_name": "/dev/sda1",
+                "volume_size": 100,
+                "volume_type": "gp2",
+                "delete_on_termination": true
+            }],
+        "instance_type": "t2.small",
+        "ssh_username": "ubuntu",
+        "ami_name": "girder_app_ami_bionic_{{timestamp}}",
+        "tags": {
+            "Name": "girder_app_ami"
+        }
+    }],
+    "provisioners": [
+        {
+            "type": "shell-local",
+            "command": "ansible-galaxy install --roles-path ../playbooks/roles/ -r ../playbooks/requirements.yml"
+        },
+	{
+            "type": "shell-local",
+            "command": "gilt --config ../playbooks/gilt.yml overlay"
+        },
+        {
+            "type": "ansible",
+            "extra_arguments": [
+                "-vv",
+                "--extra-vars", "ansible_python_interpreter=/usr/bin/python3",
+		"--module-path" ,"../playbooks/roles/girder3/library"
+            ],
+            "playbook_file": "../playbooks/site.yml"
+        },
+	{
+            "type": "shell",
+            "inline": [
+		"rm /home/ubuntu/.ssh/authorized_keys",
+		"sudo rm /root/.ssh/authorized_keys"
+	    ]
+        }
+    ]
+}
